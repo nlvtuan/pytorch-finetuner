@@ -149,6 +149,14 @@ parser.add_argument('--cutout-holes', type=int, default=1,
 parser.add_argument('--cutout-length', type=int, default=64,
                     help='length of the holes (default: 64)')
 
+# felix
+parser.add_argument('--felix', action='store_true', default=False,
+                    help='apply felix (default: False)')
+parser.add_argument('--felix-holes', type=int, default=1,
+                    help='number of holes to XXX from image (default: 1)')
+parser.add_argument('--felix-length', type=int, default=64,
+                    help='length of the holes (default: 64)')
+
 # random erasing
 parser.add_argument('--random-erasing', action='store_true', default=False,
                     help='apply random erasing (default: False)')
@@ -242,6 +250,8 @@ def main():
         logger.info("Using CutMix: prob:{} beta:{}".format(args.cutmix_prob, args.cutmix_beta))
     if args.cutout:
         logger.info("Using cutout: holes:{} length:{}".format(args.cutout_holes, args.cutout_length))
+    if args.felix:
+        logger.info("Using felix: holes:{} length:{}".format(args.felix_holes, args.felix_length))
     if args.random_erasing:
         logger.info("Using Random Erasing: p:{} s_l:{} s_h:{} r1:{} r2:{}".format(
             args.random_erasing_p, args.random_erasing_sl, args.random_erasing_sh,
