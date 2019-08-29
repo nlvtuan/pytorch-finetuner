@@ -387,7 +387,7 @@ class felix(object):
             #img[:, top:bottom, left:right].fill_(mask_value)
             above_img = img[:, :top, :]
             below_img = img[:, bottom:, :]
-            img = torch.cat((above_img, below_img), 0)     
+            img = torch.cat((above_img, below_img), 1)     
             
             '''
             img[:, h-self.length:, :].fill_(mask_value)
