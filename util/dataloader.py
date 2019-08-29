@@ -387,10 +387,13 @@ class felix(object):
             #img[:, top:bottom, left:right].fill_(mask_value)
             above_img = img[:, :top, :]
             below_img = img[:, bottom:, :]
+            img = torch.cat((above_img, below_img), 0)     
             
+            '''
             img[:, h-self.length:, :].fill_(mask_value)
             addition_img = img[:, h-self.length:, :]
             img = torch.cat((above_img, below_img, addition_img), 0)     
+            '''
             
             ax = plt.figure(figsize=(256, 256))
             plt.imshow(img)
