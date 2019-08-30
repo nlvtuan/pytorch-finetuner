@@ -110,7 +110,7 @@ def get_image_datasets(args, scale_size, input_size):
         args.random_erasing_r1 = None
         args.random_erasing_r2 = None
         
-    # use Felix
+    # use Felix    
     if args.felix:
         if args.mixup or args.ricap:
             pass
@@ -352,7 +352,7 @@ class RandomErasingForBatchImages(object):
         return img
 
 
-class felix(object):
+class felix1(object): # 55%
     """Randomly cut out some row from an image.
     Args:
         n_holes (int): Number of patches to cut out of each image.
@@ -370,35 +370,76 @@ class felix(object):
             Tensor: Image with n_holes of dimension length x length cut out of it.
         """
         h = img.size(1)
-        w = img.size(2)
-
+        #w = img.size(2) 
+        # print ("img = {0}\n".format(img.size()))
+                        
         mask_value = img.mean()
 
-        for n in range(self.n_holes):
-            
+        for n in range(self.n_holes):            
             top = np.random.randint(0 - self.length // 2, h)
-            #left = np.random.randint(0 - self.length // 2, w)
-            bottom = top + self.length
-            #right = left + self.length
-
             top = 0 if top < 0 else top
-            #left = 0 if left < 0 else left
-
-            #img[:, top:bottom, left:right].fill_(mask_value)
-            above_img = img[:, :top, :]
+            
+            bottom = top + self.length
+            bottom = h if bottom > h else h
+            
+            above_img = img[:, :top, :]    
             below_img = img[:, bottom:, :]
-            img = torch.cat((above_img, below_img), 1)     
             
-            '''
-            img[:, h-self.length:, :].fill_(mask_value)
-            addition_img = img[:, h-self.length:, :]
-            img = torch.cat((above_img, below_img, addition_img), 0)     
-            '''
+            #h2 = h - (top + (h - bottom))
+            h2 = bottom - top
+            img[:, 0:h2, :].fill_(mask_value)
+            addition_img = img[:, 0:h2, :]                       
             
-            ax = plt.figure(figsize=(256, 256))
-            plt.imshow(img)
-            ax.axis('off')
-            plt.show()            
+            img = torch.cat((above_img, below_img, addition_img), 1)     
+            
+            
+            # print ("above = {0} \n below = {1} \n add = {2}".format(above_img.size(), below_img.size(), addition_img.size()))                        
+            # print ("result = {0}".format(img.size()))            
+
+        return img
+
+
+class felix(object):
+    """Randomly mask out one or more patches from an image.
+    Args:
+        n_holes (int): Number of patches to cut out of each image.
+        length (int): The length (in pixels) of each square patch.
+    """
+    def __init__(self, n_holes, length):
+        self.n_holes = n_holes
+        self.length = length
+
+    def __call__(self, img):
+        """
+        Args:
+            img (Tensor): Tensor image of size (C, H, W).
+        Returns:
+            Tensor: Image with n_holes of dimension length x length cut out of it.
+        """
+        h = img.size(1)
+        #w = img.size(2)
+
+        #mask_value = img.mean()
+
+        for n in range(self.n_holes):
+            top = np.random.randint(0 - self.length // 2, h)
+            top = 0 if top < 0 else top # bring this line below bottom
+                        
+            bottom = top + self.length
+            bottom = h if bottom > h else bottom
+        
+            above_img = img[:, :top, :] # channel, height, width
+            below_img = img[:, bottom:, :]
+            
+            h2 = bottom - top
+            if top < self.length:
+                top = top + self.length
+            replace_img = img[:, top-h2:top, :]
+            
+            img = torch.cat((above_img, replace_img,  below_img), 1)
+            #print ("above = {0} \n below = {1} \n add = {2}".format(above_img.size(), below_img.size(), replace_img.size()))                        
+            #print ("IMG = {0}".format(img.size()))
+            #img[:, top:bottom, left:right].fill_(mask_value)
 
         return img
 
